@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulación Cajeros Automáticos - Cochabamba</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-bottom: 5px solid var(--accent);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .university-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--light);
+            border-bottom: 2px solid var(--secondary);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            background: var(--light);
+            border: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--dark);
+        }
+
+        .tab:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .tab.active {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .activity-section {
+            margin-bottom: 40px;
+            padding: 25px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid var(--secondary);
+        }
+
+        .activity-section h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 2px solid var(--light);
+            padding-bottom: 10px;
+        }
+
+        .scenario-controls {
+            background: var(--light);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--secondary);
+        }
+
+        .control-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .control-item {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        select, input, button {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--accent), #c0392b);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .simulation-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid var(--secondary);
+        }
+
+        .result-card h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid var(--light);
+            padding-bottom: 10px;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--light);
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .chart {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-title {
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .heatmap-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .analysis-section {
+            background: var(--light);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--success);
+        }
+
+        .analysis-section h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .mitigation-measures {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .measure-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid var(--warning);
+        }
+
+        .measure-card h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .measure-card p {
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: var(--primary);
+            color: white;
+            border-top: 5px solid var(--accent);
+        }
+
+        .critical {
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .warning {
+            color: var(--warning);
+            font-weight: bold;
+        }
+
+        .normal {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: var(--light);
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        .conceptual-model {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .model-diagram {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .model-step {
+            padding: 15px;
+            margin: 10px 0;
+            background: var(--light);
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .model-arrow {
+            text-align: center;
+            font-size: 1.5em;
+            color: var(--secondary);
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-group {
+                flex-direction: column;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Simulación de Cajeros Automáticos</h1>
+            <div class="subtitle">Comportamiento ante Crisis de Convertibilidad Monetaria</div>
+            <div class="university-info">
+                <strong>Universidad Adventista de Bolivia</strong> | 
+                SIMULACIÓN Y DINÁMICA DE SISTEMAS  | 
+                Lic. Maritza Torrico
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="openTab('actividad1')">Actividad 1</button>
+            <button class="tab" onclick="openTab('actividad2')">Actividad 2</button>
+            <button class="tab" onclick="openTab('actividad3')">Actividad 3</button>
+        </div>
+
+        <!-- ACTIVIDAD 1 -->
+        <div id="actividad1" class="tab-content active">
+            <div class="activity-section">
+                <h2>Actividad 1: Diseño del Modelo Conceptual y Tipología de Simulación</h2>
+                
+                <div class="conceptual-model">
+                    <div class="model-diagram">
+                        <h3>Modelo Conceptual del Sistema de Cajeros Automáticos</h3>
+                        
+                        <div class="model-step">
+                            <strong>Variables Principales del Sistema:</strong>
+                            <ul>
+                                <li><strong>Retiros:</strong> Volumen, frecuencia, monto</li>
+                                <li><strong>Capacidad:</strong> Efectivo máximo por cajero</li>
+                                <li><strong>Tiempo:</strong> Entre llegadas, servicio, reposición</li>
+                                <li><strong>Localización:</strong> Urbano/Rural, departamento</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="model-arrow">↓</div>
+                        
+                        <div class="model-step">
+                            <strong>Tipo de Simulación:</strong> Discreta y Estocástica
+                            <ul>
+                                <li>Eventos discretos (llegadas, transacciones)</li>
+                                <li>Comportamiento probabilístico</li>
+                                <li>Entidades individuales (clientes)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="model-arrow">↓</div>
+                        
+                        <div class="model-step">
+                            <strong>Diagrama Causal - Efecto Pánico en la Demanda:</strong>
+                            <ul>
+                                <li>Anuncio Convertibilidad → Pánico Financiero</li>
+                                <li>Pánico → Aumento Tasa de Llegada a ATMs</li>
+                                <li>Aumento Llegadas → Incremento Retiros</li>
+                                <li>Incremento Retiros → Reducción Efectivo</li>
+                                <li>Reducción Efectivo → Agotamiento y Colas</li>
+                                <li>Agotamiento → Mayor Percepción de Crisis</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="result-card">
+                    <h3>Características del Modelo</h3>
+                    <div class="metric">
+                        <span>Tipo de Simulación:</span>
+                        <span class="metric-value">Discreta y Estocástica</span>
+                    </div>
+                    <div class="metric">
+                        <span>Entidades Principales:</span>
+                        <span class="metric-value">Clientes, Cajeros, Efectivo</span>
+                    </div>
+                    <div class="metric">
+                        <span>Variables de Estado:</span>
+                        <span class="metric-value">Cola, Efectivo, Estado Cajero</span>
+                    </div>
+                    <div class="metric">
+                        <span>Variables de Entrada:</span>
+                        <span class="metric-value">Tasa Llegada, Tipos Transacción</span>
+                    </div>
+                    <div class="metric">
+                        <span>Variables de Salida:</span>
+                        <span class="metric-value">Tiempo Espera, Retiros Rechazados</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIVIDAD 2 -->
+        <div id="actividad2" class="tab-content">
+            <div class="activity-section">
+                <h2>Actividad 2: Desarrollo del Modelo y Ejecución de Experimentos</h2>
+                
+                <div class="scenario-controls">
+                    <h3>Configuración de Simulación - Departamento de Cochabamba</h3>
+                    <div class="control-group">
+                        <div class="control-item">
+                            <label for="scenario">Escenario de Simulación:</label>
+                            <select id="scenario">
+                                <option value="normal">Situación Normal</option>
+                                <option value="rumor">Rumor de Convertibilidad</option>
+                                <option value="crisis">Crisis Confirmada</option>
+                            </select>
+                        </div>
+                        <div class="control-item">
+                            <label for="duration">Duración (días):</label>
+                            <input type="number" id="duration" min="1" max="7" value="3">
+                        </div>
+                        <div class="control-item">
+                            <label for="initialCash">Efectivo Inicial (Bs):</label>
+                            <input type="number" id="initialCash" min="10000" max="100000" value="50000">
+                        </div>
+                    </div>
+                    <button id="runSimulation">Ejecutar Simulación</button>
+                </div>
+
+                <div class="simulation-results">
+                    <div class="result-card">
+                        <h3>Métricas Principales</h3>
+                        <div class="metric">
+                            <span>Total Transacciones:</span>
+                            <span class="metric-value" id="totalTransactions">0</span>
+                        </div>
+                        <div class="metric">
+                            <span>Retiros Realizados:</span>
+                            <span class="metric-value" id="totalWithdrawals">0</span>
+                        </div>
+                        <div class="metric">
+                            <span>Monto Total Retirado:</span>
+                            <span class="metric-value" id="totalAmount">Bs 0</span>
+                        </div>
+                        <div class="metric">
+                            <span>Retiros Rechazados:</span>
+                            <span class="metric-value" id="rejectedWithdrawals">0</span>
+                        </div>
+                    </div>
+
+                    <div class="result-card">
+                        <h3>Estado del Sistema</h3>
+                        <div class="metric">
+                            <span>Efectivo Disponible:</span>
+                            <span class="metric-value" id="cashAvailable">Bs 0</span>
+                        </div>
+                        <div class="metric">
+                            <span>Tiempo Agotamiento:</span>
+                            <span class="metric-value" id="exhaustionTime">-</span>
+                        </div>
+                        <div class="metric">
+                            <span>Cola Máxima:</span>
+                            <span class="metric-value" id="maxQueue">0</span>
+                        </div>
+                        <div class="metric">
+                            <span>Tiempo Espera Promedio:</span>
+                            <span class="metric-value" id="avgWaitTime">0 min</span>
+                        </div>
+                    </div>
+
+                    <div class="result-card">
+                        <h3>Distribución por Zona</h3>
+                        <div class="metric">
+                            <span>Zona Urbana:</span>
+                            <span class="metric-value" id="urbanWithdrawals">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="urbanProgress" style="width: 0%; background: var(--secondary);"></div>
+                        </div>
+                        <div class="metric">
+                            <span>Zona Rural:</span>
+                            <span class="metric-value" id="ruralWithdrawals">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="ruralProgress" style="width: 0%; background: var(--accent);"></div>
+                        </div>
+                        <div class="metric">
+                            <span>Estado General:</span>
+                            <span class="metric-value" id="systemStatus">Estable</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart">
+                        <div class="chart-title">Distribución de Transacciones por Tipo</div>
+                        <div id="transactionChart"></div>
+                    </div>
+                    <div class="chart">
+                        <div class="chart-title">Evolución de Efectivo en Cajeros</div>
+                        <div id="cashEvolutionChart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIVIDAD 3 -->
+        <div id="actividad3" class="tab-content">
+            <div class="activity-section">
+                <h2>Actividad 3: Generación de Variables Aleatorias y Análisis de Resultados</h2>
+                
+                <div class="heatmap-container">
+                    <div class="chart-title">Mapa de Calor - Intensidad de Retiros en Cochabamba</div>
+                    <div id="heatmapChart"></div>
+                </div>
+
+                <div class="analysis-section">
+                    <h2>Análisis de Resultados</h2>
+                    
+                    <div class="result-card">
+                        <h3>Variables Aleatorias Utilizadas</h3>
+                        <div class="metric">
+                            <span>Tiempos entre Llegadas:</span>
+                            <span class="metric-value">Distribución Exponencial</span>
+                        </div>
+                        <div class="metric">
+                            <span>Monto de Retiros:</span>
+                            <span class="metric-value">Distribución Normal Truncada</span>
+                        </div>
+                        <div class="metric">
+                            <span>Tiempos de Servicio:</span>
+                            <span class="metric-value">Uniforme y Normal</span>
+                        </div>
+                        <div class="metric">
+                            <span>Distribución Zonal:</span>
+                            <span class="metric-value">Ponderada por Población</span>
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin-top: 20px;">Identificación de Regiones Críticas</h3>
+                    <div id="criticalRegions" class="result-card">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                </div>
+
+                <div class="analysis-section">
+                    <h2>Medidas de Mitigación Propuestas</h2>
+                    <div class="mitigation-measures">
+                        <div class="measure-card">
+                            <h4>Redistribución de Efectivo</h4>
+                            <p>Optimizar rutas de recarga priorizando zonas urbanas críticas con mayor densidad de retiros.</p>
+                        </div>
+                        <div class="measure-card">
+                            <h4>Límites Temporales</h4>
+                            <p>Establecer límites de retiro por transacción durante periodos de alta demanda.</p>
+                        </div>
+                        <div class="measure-card">
+                            <h4>Comunicación Estratégica</h4>
+                            <p>Informar sobre disponibilidad de efectivo para reducir pánico y colapsos.</p>
+                        </div>
+                        <div class="measure-card">
+                            <h4>Refuerzo de Cajeros Críticos</h4>
+                            <p>Aumentar capacidad y frecuencia de recarga en zonas de alta demanda.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Simulación de Sistemas - Caso de Estudio 1 | Universidad Adventista de Bolivia</p>
+            <p>Datos de referencia: Cochabamba - Total: 603 cajeros | Rural: 332 | Urbano: 271</p>
+        </footer>
+    </div>
+
+    <script>
+        // Datos base para Cochabamba
+        const COCHABAMBA_DATA = {
+            total: 603,
+            rural: 332,
+            urban: 271,
+            zones: {
+                'Centro': { type: 'urbano', weight: 0.25, population: 150000 },
+                'Zona Sur': { type: 'urbano', weight: 0.20, population: 120000 },
+                'Zona Norte': { type: 'urbano', weight: 0.15, population: 90000 },
+                'Quillacollo': { type: 'urbano', weight: 0.10, population: 137000 },
+                'Sacaba': { type: 'urbano', weight: 0.10, population: 172000 },
+                'Valles': { type: 'rural', weight: 0.08, population: 80000 },
+                'Trópico': { type: 'rural', weight: 0.07, population: 70000 },
+                'Cono Sur': { type: 'rural', weight: 0.05, population: 50000 }
+            }
+        };
+
+        // Configuración de escenarios
+        const SCENARIOS = {
+            normal: {
+                panicLevel: 1.0,
+                arrivalRate: 1.5,
+                withdrawalProbability: 0.5,
+                avgWithdrawal: 800,
+                description: 'Situación Normal - Comportamiento regular'
+            },
+            rumor: {
+                panicLevel: 2.0,
+                arrivalRate: 0.8,
+                withdrawalProbability: 0.7,
+                avgWithdrawal: 1200,
+                description: 'Rumor de Convertibilidad - Aumento moderado de retiros'
+            },
+            crisis: {
+                panicLevel: 4.0,
+                arrivalRate: 0.4,
+                withdrawalProbability: 0.9,
+                avgWithdrawal: 1800,
+                description: 'Crisis Confirmada - Retiros masivos y pánico'
+            }
+        };
+
+        // Variables de simulación
+        let simulationData = {
+            transactions: [],
+            cashHistory: [],
+            zoneStats: {},
+            metrics: {
+                totalTransactions: 0,
+                totalWithdrawals: 0,
+                totalAmount: 0,
+                rejectedWithdrawals: 0,
+                maxQueue: 0,
+                avgWaitTime: 0,
+                exhaustionTime: null
+            }
+        };
+
+        // Funciones de navegación entre pestañas
+        function openTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            const tabButtons = document.querySelectorAll('.tab');
+            tabButtons.forEach(button => button.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
+            
+            // Si es la actividad 2 o 3, ejecutar simulación para mostrar datos
+            if (tabName === 'actividad2' || tabName === 'actividad3') {
+                updateCharts();
+                updateCriticalRegions();
+            }
+        }
+
+        // Inicializar estadísticas por zona
+        function initializeZoneStats() {
+            simulationData.zoneStats = {};
+            Object.keys(COCHABAMBA_DATA.zones).forEach(zone => {
+                simulationData.zoneStats[zone] = {
+                    withdrawals: 0,
+                    amount: 0,
+                    transactions: 0,
+                    type: COCHABAMBA_DATA.zones[zone].type,
+                    population: COCHABAMBA_DATA.zones[zone].population
+                };
+            });
+        }
+
+        // Generar tiempo entre llegadas exponencial
+        function exponentialRandom(mean) {
+            return -mean * Math.log(1 - Math.random());
+        }
+
+        // Generar monto de retiro normal truncado
+        function normalRandom(mean, std, min, max) {
+            let value;
+            do {
+                value = mean + std * (Math.random() * 2 - 1) * 2;
+            } while (value < min || value > max);
+            return Math.round(value);
+        }
+
+        // Simular transacciones
+        function simulateTransactions(scenario, days, initialCash) {
+            initializeZoneStats();
+            
+            const config = SCENARIOS[scenario];
+            const totalMinutes = days * 24 * 60;
+            let currentTime = 0;
+            let cashAvailable = initialCash;
+            let queueLength = 0;
+            let maxQueue = 0;
+            let totalWaitTime = 0;
+            let waitCount = 0;
+            
+            simulationData.cashHistory = [{ time: 0, cash: cashAvailable }];
+            simulationData.transactions = [];
+            
+            // Reiniciar métricas
+            simulationData.metrics = {
+                totalTransactions: 0,
+                totalWithdrawals: 0,
+                totalAmount: 0,
+                rejectedWithdrawals: 0,
+                maxQueue: 0,
+                avgWaitTime: 0,
+                exhaustionTime: null
+            };
+            
+            while (currentTime < totalMinutes && simulationData.transactions.length < 1000) {
+                // Generar llegada de cliente
+                const interarrivalTime = exponentialRandom(config.arrivalRate);
+                currentTime += interarrivalTime;
+                
+                if (currentTime >= totalMinutes) break;
+                
+                // Determinar tipo de transacción
+                const rand = Math.random();
+                let transactionType;
+                if (rand < config.withdrawalProbability) {
+                    transactionType = 'retiro';
+                } else if (rand < config.withdrawalProbability + 0.2) {
+                    transactionType = 'transferencia';
+                } else {
+                    transactionType = 'depósito';
+                }
+                
+                // Asignar zona
+                const zones = Object.keys(COCHABAMBA_DATA.zones);
+                const zoneWeights = zones.map(zone => COCHABAMBA_DATA.zones[zone].weight);
+                const randomZone = weightedRandom(zones, zoneWeights);
+                
+                // Procesar transacción
+                let amount = 0;
+                let serviceTime = 0;
+                let rejected = false;
+                
+                if (transactionType === 'retiro') {
+                    amount = normalRandom(config.avgWithdrawal, 200, 200, 2000);
+                    
+                    if (amount <= cashAvailable) {
+                        cashAvailable -= amount;
+                        simulationData.zoneStats[randomZone].withdrawals++;
+                        simulationData.zoneStats[randomZone].amount += amount;
+                        simulationData.metrics.totalWithdrawals++;
+                        simulationData.metrics.totalAmount += amount;
+                    } else {
+                        rejected = true;
+                        simulationData.metrics.rejectedWithdrawals++;
+                    }
+                    
+                    serviceTime = 1 + Math.random(); // Uniforme(1,2)
+                } else if (transactionType === 'transferencia') {
+                    serviceTime = 1 + Math.random(); // Uniforme(1,2)
+                } else {
+                    serviceTime = Math.max(1, 3 + (Math.random() * 0.4 - 0.2)); // Normal(3,0.2)
+                }
+                
+                // Actualizar cola
+                queueLength++;
+                maxQueue = Math.max(maxQueue, queueLength);
+                
+                // Simular tiempo de espera
+                const waitTime = queueLength > 1 ? serviceTime * (queueLength - 1) : 0;
+                totalWaitTime += waitTime;
+                waitCount++;
+                
+                // Registrar transacción
+                simulationData.transactions.push({
+                    time: currentTime,
+                    type: transactionType,
+                    amount: amount,
+                    zone: randomZone,
+                    rejected: rejected,
+                    waitTime: waitTime,
+                    serviceTime: serviceTime
+                });
+                
+                simulationData.zoneStats[randomZone].transactions++;
+                simulationData.metrics.totalTransactions++;
+                
+                // Actualizar historial de efectivo
+                simulationData.cashHistory.push({
+                    time: currentTime,
+                    cash: cashAvailable
+                });
+                
+                // Verificar agotamiento
+                if (cashAvailable <= 0 && !simulationData.metrics.exhaustionTime) {
+                    simulationData.metrics.exhaustionTime = currentTime;
+                }
+                
+                // Reducir cola después del servicio (simulado)
+                queueLength = Math.max(0, queueLength - 1);
+            }
+            
+            // Calcular métricas finales
+            simulationData.metrics.maxQueue = maxQueue;
+            simulationData.metrics.avgWaitTime = waitCount > 0 ? totalWaitTime / waitCount : 0;
+            simulationData.metrics.cashAvailable = cashAvailable;
+            
+            if (!simulationData.metrics.exhaustionTime && cashAvailable > 0) {
+                simulationData.metrics.exhaustionTime = 'No agotado';
+            }
+        }
+
+        // Selección ponderada aleatoria
+        function weightedRandom(items, weights) {
+            const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+            let random = Math.random() * totalWeight;
+            
+            for (let i = 0; i < items.length; i++) {
+                random -= weights[i];
+                if (random <= 0) {
+                    return items[i];
+                }
+            }
+            
+            return items[items.length - 1];
+        }
+
+        // Actualizar interfaz con resultados
+        function updateUI() {
+            const metrics = simulationData.metrics;
+            
+            // Actualizar métricas principales
+            document.getElementById('totalTransactions').textContent = metrics.totalTransactions;
+            document.getElementById('totalWithdrawals').textContent = metrics.totalWithdrawals;
+            document.getElementById('totalAmount').textContent = `Bs ${metrics.totalAmount.toLocaleString()}`;
+            document.getElementById('rejectedWithdrawals').textContent = metrics.rejectedWithdrawals;
+            document.getElementById('cashAvailable').textContent = `Bs ${metrics.cashAvailable.toLocaleString()}`;
+            document.getElementById('exhaustionTime').textContent = 
+                typeof metrics.exhaustionTime === 'number' ? 
+                `${(metrics.exhaustionTime / 60).toFixed(1)} horas` : metrics.exhaustionTime;
+            document.getElementById('maxQueue').textContent = metrics.maxQueue;
+            document.getElementById('avgWaitTime').textContent = `${metrics.avgWaitTime.toFixed(1)} min`;
+            
+            // Calcular distribución urbano/rural
+            let urbanWithdrawals = 0;
+            let ruralWithdrawals = 0;
+            let totalWithdrawals = 0;
+            
+            Object.keys(simulationData.zoneStats).forEach(zone => {
+                const stats = simulationData.zoneStats[zone];
+                if (stats.type === 'urbano') {
+                    urbanWithdrawals += stats.withdrawals;
+                } else {
+                    ruralWithdrawals += stats.withdrawals;
+                }
+                totalWithdrawals += stats.withdrawals;
+            });
+            
+            const urbanPercent = totalWithdrawals > 0 ? (urbanWithdrawals / totalWithdrawals * 100) : 0;
+            const ruralPercent = totalWithdrawals > 0 ? (ruralWithdrawals / totalWithdrawals * 100) : 0;
+            
+            document.getElementById('urbanWithdrawals').textContent = `${urbanPercent.toFixed(1)}%`;
+            document.getElementById('ruralWithdrawals').textContent = `${ruralPercent.toFixed(1)}%`;
+            document.getElementById('urbanProgress').style.width = `${urbanPercent}%`;
+            document.getElementById('ruralProgress').style.width = `${ruralPercent}%`;
+            
+            // Actualizar estado del sistema
+            const statusElement = document.getElementById('systemStatus');
+            if (metrics.rejectedWithdrawals > metrics.totalWithdrawals * 0.3) {
+                statusElement.textContent = 'Crítico';
+                statusElement.className = 'critical';
+            } else if (metrics.rejectedWithdrawals > metrics.totalWithdrawals * 0.1) {
+                statusElement.textContent = 'Inestable';
+                statusElement.className = 'warning';
+            } else {
+                statusElement.textContent = 'Estable';
+                statusElement.className = 'normal';
+            }
+            
+            // Actualizar gráficos
+            updateCharts();
+            updateCriticalRegions();
+        }
+
+        // Actualizar gráficos
+        function updateCharts() {
+            // Gráfico de distribución de transacciones
+            const transactionTypes = ['retiro', 'transferencia', 'depósito'];
+            const typeCounts = transactionTypes.map(type => 
+                simulationData.transactions.filter(t => t.type === type).length
+            );
+            
+            const transactionChart = {
+                data: [{
+                    values: typeCounts,
+                    labels: transactionTypes,
+                    type: 'pie',
+                    hole: 0.4,
+                    marker: {
+                        colors: ['#e74c3c', '#3498db', '#2ecc71']
+                    }
+                }],
+                layout: {
+                    height: 300,
+                    showlegend: true,
+                    legend: {
+                        orientation: 'h'
+                    }
+                }
+            };
+            
+            Plotly.newPlot('transactionChart', transactionChart.data, transactionChart.layout);
+            
+            // Gráfico de evolución de efectivo
+            const timeLabels = simulationData.cashHistory.map(point => 
+                `${Math.floor(point.time / 60)}:${Math.floor(point.time % 60).toString().padStart(2, '0')}`
+            );
+            
+            const cashEvolutionChart = {
+                data: [{
+                    x: timeLabels,
+                    y: simulationData.cashHistory.map(point => point.cash),
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: { color: '#27ae60', width: 3 },
+                    marker: { size: 6 }
+                }],
+                layout: {
+                    title: 'Evolución del Efectivo Disponible',
+                    xaxis: { title: 'Tiempo (horas:minutos)' },
+                    yaxis: { title: 'Efectivo (Bs)' },
+                    height: 300
+                }
+            };
+            
+            Plotly.newPlot('cashEvolutionChart', cashEvolutionChart.data, cashEvolutionChart.layout);
+            
+            // Mapa de calor por zonas
+            const zones = Object.keys(simulationData.zoneStats);
+            const withdrawalIntensity = zones.map(zone => 
+                simulationData.zoneStats[zone].withdrawals
+            );
+            
+            const heatmapChart = {
+                data: [{
+                    z: [withdrawalIntensity],
+                    x: zones,
+                    y: ['Intensidad'],
+                    type: 'heatmap',
+                    colorscale: 'Reds',
+                    showscale: true
+                }],
+                layout: {
+                    title: 'Intensidad de Retiros por Zona',
+                    xaxis: { title: 'Zonas de Cochabamba', tickangle: -45 },
+                    height: 400
+                }
+            };
+            
+            Plotly.newPlot('heatmapChart', heatmapChart.data, heatmapChart.layout);
+        }
+
+        // Actualizar regiones críticas
+        function updateCriticalRegions() {
+            const criticalRegionsElement = document.getElementById('criticalRegions');
+            let html = '';
+            
+            // Calcular intensidad por zona
+            const zoneIntensities = [];
+            Object.keys(simulationData.zoneStats).forEach(zone => {
+                const stats = simulationData.zoneStats[zone];
+                const intensity = stats.withdrawals > 0 ? stats.amount / stats.withdrawals : 0;
+                zoneIntensities.push({
+                    zone: zone,
+                    intensity: intensity,
+                    withdrawals: stats.withdrawals,
+                    type: stats.type
+                });
+            });
+            
+            // Ordenar por intensidad
+            zoneIntensities.sort((a, b) => b.intensity - a.intensity);
+            
+            // Mostrar las 3 zonas más críticas
+            zoneIntensities.slice(0, 3).forEach((zoneData, index) => {
+                const status = index === 0 ? 'critical' : (index === 1 ? 'warning' : 'normal');
+                html += `
+                    <div class="metric">
+                        <span>${zoneData.zone} (${zoneData.type}):</span>
+                        <span class="${status}">${zoneData.withdrawals} retiros (Bs ${Math.round(zoneData.intensity)})</span>
+                    </div>
+                `;
+            });
+            
+            criticalRegionsElement.innerHTML = html;
+        }
+
+        // Ejecutar simulación al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Simulación inicial
+            runSimulation();
+            
+            // Configurar evento del botón
+            document.getElementById('runSimulation').addEventListener('click', runSimulation);
+        });
+
+        function runSimulation() {
+            const scenario = document.getElementById('scenario').value;
+            const days = parseInt(document.getElementById('duration').value);
+            const initialCash = parseInt(document.getElementById('initialCash').value);
+            
+            simulateTransactions(scenario, days, initialCash);
+            updateUI();
+        }
+
+        // Ejecutar simulación inicial
+        runSimulation();
+    </script>
+</body>
+</html>
